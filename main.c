@@ -135,3 +135,33 @@ void addEvent() {
     printf("Event added successfully! (ID: %d)\n", e.id);
 }
 
+// FR4: Update Event [cite: 29]
+void updateEvent() {
+    int id, idx;
+    printf("Enter Event ID to update: "); scanf("%d", &id); getchar();
+    if ((idx = findEventIndex(id)) == -1) { printf("Event not found.\n"); return; }
+    
+    printf("New Title (or press enter to skip): "); char buffer[MAX_STR]; fgets(buffer, MAX_STR, stdin); strip_nl(buffer);
+    if(strlen(buffer) > 0) strcpy(events[idx].title, buffer);
+    
+    printf("New Time (or press enter to skip): "); fgets(buffer, MAX_STR, stdin); strip_nl(buffer);
+    if(strlen(buffer) > 0) {
+        if(checkConflict(events[idx].date, buffer, events[idx].venue, id)) { printf("Conflict! Time not updated.\n"); } 
+        else { strcpy(events[idx].time, buffer); }
+    }
+    saveData();
+    printf("Event updated.\n");
+}
+
+// FR5: Delete Event [cite: 29]
+void deleteEvent() {
+    int id, idx;
+    printf("Enter Event ID to delete: "); scanf("%d", &id); getchar();
+    if ((idx = findEventIndex(id)) == -1) { printf("Event not found.\n"); return; }
+    
+    for (int i = idx; i < event_count - 1; i++) events[i] = events[i+1];
+    event_count--;
+    saveData();
+    printf("Event deleted.\n");
+}
+
