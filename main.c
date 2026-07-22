@@ -79,6 +79,27 @@ void saveData() {
     if (fr) fclose(fr);
 }
 
+// FR16 & FR17: Data Backup and Restore [cite: 30]
+void manageBackups(int restore) {
+    if (restore) {
+        rename("events_backup.csv", EVENT_FILE);
+        rename("regs_backup.csv", REG_FILE);
+        event_count = 0; reg_count = 0;
+        loadData();
+        printf("Data restored from backup successfully.\n");
+    } else {
+        saveData();
+        FILE *src1 = fopen(EVENT_FILE, "r"), *dst1 = fopen("events_backup.csv", "w");
+        FILE *src2 = fopen(REG_FILE, "r"), *dst2 = fopen("regs_backup.csv", "w");
+        char ch;
+        if (src1 && dst1) while ((ch = fgetc(src1)) != EOF) fputc(ch, dst1);
+        if (src2 && dst2) while ((ch = fgetc(src2)) != EOF) fputc(ch, dst2);
+        if(src1) fclose(src1); if(dst1) fclose(dst1);
+        if(src2) fclose(src2); if(dst2) fclose(dst2);
+        printf("Data backup created successfully.\n");
+    }
+}
+
 // --- Utility Functions ---
 void strip_nl(char *str) { str[strcspn(str, "\n")] = 0; }
 int findEventIndex(int id) {
