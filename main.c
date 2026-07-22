@@ -12,6 +12,7 @@
 typedef struct {
     int id;
     char title[MAX_STR];
+    char description[MAX_STR];
     char date[MAX_STR];
     char time[MAX_STR];
     char venue[MAX_STR];
@@ -40,10 +41,11 @@ void loadData() {
     if (fe) {
         char line[512];
         while (fgets(line, sizeof(line), fe)) {
-            sscanf(line, "%d,%[^,],%[^,],%[^,],%[^,],%[^,],%d,%d,%d", 
-                &events[event_count].id, events[event_count].title, events[event_count].date, 
-                events[event_count].time, events[event_count].venue, events[event_count].category, 
-                &events[event_count].capacity, &events[event_count].registered, &events[event_count].attended);
+            sscanf(line, "%d,%[^,],%[^,],%[^,],%[^,],%[^,],%[^,],%d,%d,%d", 
+                &events[event_count].id, events[event_count].title, events[event_count].description,
+                events[event_count].date, events[event_count].time, events[event_count].venue, 
+                events[event_count].category, &events[event_count].capacity, 
+                &events[event_count].registered, &events[event_count].attended);
             event_count++;
         }
         fclose(fe);
@@ -65,9 +67,9 @@ void loadData() {
 void saveData() {
     FILE *fe = fopen(EVENT_FILE, "w");
     for (int i = 0; i < event_count; i++) {
-        fprintf(fe, "%d,%s,%s,%s,%s,%s,%d,%d,%d\n", events[i].id, events[i].title, events[i].date, 
-                events[i].time, events[i].venue, events[i].category, events[i].capacity, 
-                events[i].registered, events[i].attended);
+        fprintf(fe, "%d,%s,%s,%s,%s,%s,%s,%d,%d,%d\n", events[i].id, events[i].title, events[i].description,
+                events[i].date, events[i].time, events[i].venue, events[i].category, 
+                events[i].capacity, events[i].registered, events[i].attended);
     }
     if (fe) fclose(fe);
 
@@ -123,16 +125,16 @@ int checkConflict(char* date, char* time, char* venue, int ignore_id) {
 // --- Core Functionalities ---
 // FR6: View Events [cite: 29]
 void displayEvents(int filter_mode, char* keyword) {
-    printf("\n%-5s | %-15s | %-10s | %-10s | %-15s | %-10s | %s\n", "ID", "Title", "Date", "Time", "Venue", "Category", "Slots");
-    printf("--------------------------------------------------------------------------------------\n");
+    printf("\n%-5s | %-15s | %-20s | %-10s | %-8s | %-12s | %-10s | %s\n", "ID", "Title", "Description", "Date", "Time", "Venue", "Category", "Slots");
+    printf("----------------------------------------------------------------------------------------------------------------------\n");
     for (int i = 0; i < event_count; i++) {
         int match = 1;
-        if (filter_mode == 1) match = (strstr(events[i].title, keyword) || strstr(events[i].date, keyword)); // FR10: Search [cite: 30]
-        if (filter_mode == 2) match = (strcmp(events[i].category, keyword) == 0 || strcmp(events[i].venue, keyword) == 0); // FR14: Filter [cite: 30]
+        if (filter_mode == 1) match = (strstr(events[i].title, keyword) || strstr(events[i].date, keyword) || strstr(events[i].description, keyword)); // FR10: Search
+        if (filter_mode == 2) match = (strcmp(events[i].category, keyword) == 0 || strcmp(events[i].venue, keyword) == 0); // FR14: Filter
         
         if (match) {
-            printf("%-5d | %-15s | %-10s | %-10s | %-15s | %-10s | %d/%d\n", 
-                   events[i].id, events[i].title, events[i].date, events[i].time, 
+            printf("%-5d | %-15s | %-20s | %-10s | %-8s | %-12s | %-10s | %d/%d\n", 
+                   events[i].id, events[i].title, events[i].description, events[i].date, events[i].time, 
                    events[i].venue, events[i].category, events[i].capacity - events[i].registered, events[i].capacity);
         }
     }
@@ -143,6 +145,7 @@ void addEvent() {
     Event e;
     e.id = (event_count > 0) ? events[event_count-1].id + 1 : 101;
     printf("Title: "); fgets(e.title, MAX_STR, stdin); strip_nl(e.title);
+    printf("Description: "); fgets(e.description, MAX_STR, stdin); strip_nl(e.description);
     printf("Date (DD/MM/YY): "); fgets(e.date, MAX_STR, stdin); strip_nl(e.date);
     printf("Time (HH:MM): "); fgets(e.time, MAX_STR, stdin); strip_nl(e.time);
     printf("Venue: "); fgets(e.venue, MAX_STR, stdin); strip_nl(e.venue);
@@ -168,6 +171,9 @@ void updateEvent() {
     printf("New Title (or press enter to skip): "); fgets(buffer, MAX_STR, stdin); strip_nl(buffer);
     if(strlen(buffer) > 0) strcpy(events[idx].title, buffer);
     
+    printf("New Description (or press enter to skip): "); fgets(buffer, MAX_STR, stdin); strip_nl(buffer);
+    if(strlen(buffer) > 0) strcpy(events[idx].description, buffer);
+
     char new_date[MAX_STR], new_time[MAX_STR], new_venue[MAX_STR];
     strcpy(new_date, events[idx].date);
     strcpy(new_time, events[idx].time);
@@ -317,16 +323,42 @@ void markAttendance() {
     printf("Participant not found.\n");
 }
 
+// FR19: View Participant List for Specific Event [cite: 31]
+void viewParticipantList() {
+    int id, idx;
+    printf("Enter Event ID to view participants: "); scanf("%d", &id); getchar();
+    if ((idx = findEventIndex(id)) == -1) { printf("Event not found.\n"); return; }
+
+    printf("\n=======================================================\n");
+    printf(" Participant List for Event: %s (ID: %d)\n", events[idx].title, events[idx].id);
+    printf(" Description: %s\n", events[idx].description);
+    printf(" Venue: %s | Date: %s | Time: %s\n", events[idx].venue, events[idx].date, events[idx].time);
+    printf(" Total Registrations: %d / Capacity: %d\n", events[idx].registered, events[idx].capacity);
+    printf("=======================================================\n");
+    printf("%-5s | %-25s | %-10s | %s\n", "#", "Participant Name", "Attendance", "Feedback");
+    printf("-------------------------------------------------------\n");
+    
+    int count = 0;
+    for (int i = 0; i < reg_count; i++) {
+        if (regs[i].event_id == id) {
+            count++;
+            printf("%-5d | %-25s | %-10s | %s\n", count, regs[i].participant_name, 
+                   regs[i].is_present ? "PRESENT" : "ABSENT", regs[i].feedback);
+        }
+    }
+    if (count == 0) printf("No registered participants found for this event.\n");
+    printf("-------------------------------------------------------\n");
+}
 
 // --- Menus ---
 void organizerMenu() {
     int choice; char buffer[MAX_STR];
     while(1) {
         printf("\n=== ORGANIZER DASHBOARD ===\n");
-        printf("1. Add Event  2. Update Event  3. Delete Event\n");
-        printf("4. View All   5. Search/Filter 6. Mark Attendance\n");
-        printf("7. Reports    8. Backup Data   9. Restore Data\n");
-        printf("0. Logout\nChoice: ");
+        printf("1. Add Event       2. Update Event      3. Delete Event\n");
+        printf("4. View All        5. Search/Filter     6. Mark Attendance\n");
+        printf("7. Reports         8. Backup Data       9. Restore Data\n");
+        printf("10. Participant List 0. Logout\nChoice: ");
         scanf("%d", &choice); getchar();
         switch(choice) {
             case 1: addEvent(); break;
@@ -334,7 +366,7 @@ void organizerMenu() {
             case 3: deleteEvent(); break;
             case 4: displayEvents(0, ""); break;
             case 5: 
-                printf("Filter by (1) Title/Date or (2) Category/Venue? ");
+                printf("Filter by (1) Title/Date/Desc or (2) Category/Venue? ");
                 int fm; scanf("%d", &fm); getchar();
                 printf("Enter keyword: "); fgets(buffer, MAX_STR, stdin); strip_nl(buffer);
                 displayEvents(fm, buffer); break;
@@ -342,6 +374,7 @@ void organizerMenu() {
             case 7: generateReports(); break;
             case 8: manageBackups(0); break;
             case 9: manageBackups(1); break;
+            case 10: viewParticipantList(); break;
             case 0: return;
         }
     }
@@ -357,7 +390,7 @@ void participantMenu() {
         switch(choice) {
             case 1: displayEvents(0, ""); break;
             case 2: 
-                printf("Search Keyword (Title/Date): "); fgets(buffer, MAX_STR, stdin); strip_nl(buffer);
+                printf("Search Keyword (Title/Date/Desc): "); fgets(buffer, MAX_STR, stdin); strip_nl(buffer);
                 displayEvents(1, buffer); break;
             case 3: registerParticipant(); break;
             case 4: cancelRegistration(); break;
@@ -371,11 +404,12 @@ void volunteerMenu() {
     int choice;
     while(1) {
         printf("\n=== VOLUNTEER DASHBOARD ===\n");
-        printf("1. View Events\n2. Mark Attendance\n0. Logout\nChoice: ");
+        printf("1. View Events  2. Mark Attendance  3. View Participant List\n0. Logout\nChoice: ");
         scanf("%d", &choice); getchar();
         switch(choice) {
             case 1: displayEvents(0, ""); break;
             case 2: markAttendance(); break;
+            case 3: viewParticipantList(); break;
             case 0: return;
         }
     }
