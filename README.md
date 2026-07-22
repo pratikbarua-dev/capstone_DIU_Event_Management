@@ -14,13 +14,13 @@
 
 ---
 
-## 👥 Group Project Team Members & Product Functions
+## 👥 Group Project Team Members & Module Responsibilities
 
-| Member | Student ID | Specific Product Functions & Contribution Area |
+| Member | Student ID | Implemented Functions & Module Responsibilities |
 |---|---|---|
 | **Pratik Barua** | `252-35-226` | • **Add/Update/Delete Events**: Create detailed event profiles including title, description, date, time, and venue.<br>• **Participant Registration**: Sign up for events with immediate confirmation.<br>• **Attendance Management**: Track and update participant attendance status.<br>• **Scheduling & Conflict Detection**: Monitor venue and time slots to identify and prevent double-booking. |
-| **Umme Habiba Ayshi** | `252-35-298` | • **Venue Allocation**: Assign events to specific locations and set capacity limits.<br>• **System Testing & Documentation Validation**. |
-| **Moshiur Rahman** | `252-35-184` | • **Report Generation**: Produce summary reports detailing registration numbers, attendance rates, and event status.<br>• **Data Backup & Restore Subsystem**. |
+| **Umme Habiba Ayshi** | `252-35-298` | • **Venue Allocation & Directory Subsystem (`venues.csv`)**: Manage DIU venues, locations, and facilities.<br>• **Venue Occupancy Alerts**: Real-time slot status indicators (`[AVAILABLE]`, `[FEW SLOTS LEFT]`, `[FULL]`).<br>• **System Testing & Documentation Validation**. |
+| **Moshiur Rahman** | `252-35-184` | • **Report Generation & Export (`event_summary_report.txt`)**: Produce detailed summary reports detailing registration numbers, attendance rates, and event status.<br>• **System Audit Logging (`system_audit.log`)**: Timestamped security & operation logging.<br>• **Data Backup & Restore Subsystem**. |
 
 ---
 
@@ -48,16 +48,20 @@ graph TD
         B --> C[Authentication & Access Control]
         B --> D[Venue & Time Conflict Detector]
         B --> E[Capacity & Slot Tracking Engine]
-        B --> F[Report Generator & Analytics]
-        B --> G[Backup & Recovery Subsystem]
+        B --> F[Report Generator & File Exporter]
+        B --> G[Venue Directory Subsystem]
+        B --> H[System Audit Logger]
+        B --> I[Backup & Recovery Subsystem]
     end
 
     subgraph Data Layer
-        C <--> H[(events.csv)]
-        D <--> H
-        E <--> H
-        F <--> I[(registrations.csv)]
-        G <--> J[(events_backup.csv / regs_backup.csv)]
+        C <--> J[(events.csv)]
+        D <--> J
+        E <--> J
+        F <--> K[(registrations.csv)]
+        G <--> L[(venues.csv)]
+        H <--> M[(system_audit.log)]
+        I <--> N[(events_backup.csv / regs_backup.csv)]
     end
 ```
 
@@ -65,16 +69,17 @@ graph TD
 
 ## 🌟 Key Features & Functional Responsibility
 
-| Module | Features & Capabilities | Contributor | Functional Requirements |
+| Module | Features & Capabilities | Primary Contributor | Functional Requirements |
 |---|---|---|---|
 | 🔐 **Authentication & Access** | Role-based dashboard routing (Organizer, Participant, Volunteer) with password check obfuscation | Pratik Barua | FR1, FR2, NFR6 |
 | 📅 **Add/Update/Delete Events** | Create detailed event profiles including title, description, date, time, and venue | Pratik Barua | FR3, FR4, FR5 |
 | 🎟️ **Participant Registration** | Allow users to sign up for specific events and receive immediate confirmation | Pratik Barua | FR7, FR12, FR18 |
 | 📋 **Attendance Management** | Track and update the attendance status of registered participants | Pratik Barua | FR11, FR19 |
 | 🚨 **Scheduling & Conflict Detection**| Monitor venue and time slots to identify and prevent double-booking | Pratik Barua | FR8 |
-| 📍 **Venue Allocation** | Assign events to specific locations and set seating capacity limits | Umme Habiba Ayshi | FR9, FR14 |
-| 📊 **Report Generation** | Produce summary reports detailing registration numbers, attendance rates, and event status | Moshiur Rahman | FR13 |
-| 💾 **Data Backup & Restore** | 1-click database duplication (`events_backup.csv`) and fail-safe recovery | Moshiur Rahman | FR16, FR17 |
+| 📍 **Venue Allocation & Directory** | Manage physical DIU locations, capacity caps, facilities (`venues.csv`), and occupancy alerts | Umme Habiba Ayshi | FR9, FR14 |
+| 📊 **Report Generation & Export** | Produce and export summary reports detailing registration numbers, attendance rates, and status | Moshiur Rahman | FR13 |
+| 📜 **System Audit Logging** | Track system actions with real-time timestamps into `system_audit.log` | Moshiur Rahman | NFR2, NFR3 |
+| 💾 **Data Backup & Restore** | 1-click database duplication (`events_backup.csv`) and auto-backup on session logout | Moshiur Rahman | FR16, FR17 |
 
 ---
 
@@ -95,7 +100,7 @@ sequenceDiagram
     alt Conflict Found
         Core-->>Org: ERROR: Venue Conflict Detected!
     else No Conflict
-        Core->>DB: Write to events.csv
+        Core->>DB: Write to events.csv & Log Audit Event
         Core-->>Org: Event Created Successfully!
     end
 
@@ -143,6 +148,8 @@ capstone_DIU_Event_Management/
 ├── main.c                  # CAPSTONE CORE: C Event Management Engine
 ├── events.csv              # Primary Events Storage File
 ├── registrations.csv       # Primary Registrations Storage File
+├── venues.csv              # DIU Venue Directory & Capacity Allocations
+├── system_audit.log        # Timestamped System Audit Logs
 └── assets/
     ├── logo.png            # Minimalist Line-Art Emblem Logo
     └── architecture.png    # Minimalist Black & White Architecture Diagram
@@ -151,5 +158,5 @@ capstone_DIU_Event_Management/
 ---
 
 <div align="center">
-  <b>Daffodil International University (DIU)</b> • Department of Computer Science & Engineering
+  <b>Daffodil International University (DIU)</b> • Department of Software Engineering
 </div>
