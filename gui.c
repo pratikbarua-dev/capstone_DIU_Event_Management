@@ -190,6 +190,34 @@ void on_register_clicked(GtkWidget *w, gpointer window) {
     gtk_widget_destroy(dialog);
 }
 
+void on_attendance_clicked(GtkWidget *w, gpointer window) {
+    GtkWidget *dialog = gtk_dialog_new_with_buttons("Mark Attendance", GTK_WINDOW(window), GTK_DIALOG_MODAL, "Cancel", GTK_RESPONSE_CANCEL, "Mark Present", GTK_RESPONSE_OK, NULL);
+    GtkWidget *content = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+    GtkWidget *grid = gtk_grid_new(); gtk_grid_set_row_spacing(GTK_GRID(grid), 10); gtk_grid_set_column_spacing(GTK_GRID(grid), 10); gtk_container_set_border_width(GTK_CONTAINER(grid), 20);
+    
+    GtkWidget *e_id = gtk_entry_new(); GtkWidget *e_name = gtk_entry_new();
+    gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Event ID:"), 0, 0, 1, 1); gtk_grid_attach(GTK_GRID(grid), e_id, 1, 0, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Participant Name:"), 0, 1, 1, 1); gtk_grid_attach(GTK_GRID(grid), e_name, 1, 1, 1, 1);
+    
+    gtk_container_add(GTK_CONTAINER(content), grid); gtk_widget_show_all(dialog);
+    if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_OK) {
+        int id = atoi(gtk_entry_get_text(GTK_ENTRY(e_id))); const char *name = gtk_entry_get_text(GTK_ENTRY(e_name));
+        int found = 0;
+        for (int i = 0; i < reg_count; i++) {
+            if (regs[i].event_id == id && strcmp(regs[i].participant_name, name) == 0) {
+                if (!regs[i].is_present) {
+                    regs[i].is_present = 1;
+                    for(int j=0; j<event_count; j++) if(events[j].id == id) events[j].attended++;
+                    saveData(); show_message(GTK_WINDOW(window), "Participant marked PRESENT."); refresh_reports();
+                } else show_message(GTK_WINDOW(window), "Already marked present.");
+                found = 1; break;
+            }
+        }
+        if(!found) show_message(GTK_WINDOW(window), "Registration not found!");
+    }
+    gtk_widget_destroy(dialog);
+}
+
 // UI Builders
 GtkWidget* create_tree_view(GtkListStore **store_ptr) {
     *store_ptr = gtk_list_store_new(6, G_TYPE_INT, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
@@ -295,6 +323,21 @@ static void activate(GtkApplication* app, gpointer user_data) {
     GtkWidget *part_scroll = gtk_scrolled_window_new(NULL, NULL); tree_view_part = create_tree_view(&list_store_part);
     gtk_container_add(GTK_CONTAINER(part_scroll), tree_view_part); gtk_box_pack_start(GTK_BOX(part_view), part_scroll, TRUE, TRUE, 0);
 
+    // --- 4. Volunteer Dashboard ---
+    vol_view = gtk_box_new(GTK_ORIENTATION_VERTICAL, 15); gtk_container_set_border_width(GTK_CONTAINER(vol_view), 20);
+    GtkWidget *vol_top = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10); gtk_box_pack_start(GTK_BOX(vol_view), vol_top, FALSE, FALSE, 0);
+    
+    GtkWidget *btn_vol_att = gtk_button_new_with_label("Mark Attendance"); sc = gtk_widget_get_style_context(btn_vol_att); gtk_style_context_add_class(sc, "primary");
+    GtkWidget *btn_vol_logout = gtk_button_new_with_label("Logout");
+    gtk_box_pack_start(GTK_BOX(vol_top), btn_vol_att, FALSE, FALSE, 0);
+    gtk_box_pack_end(GTK_BOX(vol_top), btn_vol_logout, FALSE, FALSE, 0);
+    
+    g_signal_connect(btn_vol_att, "clicked", G_CALLBACK(on_attendance_clicked), window);
+    g_signal_connect(btn_vol_logout, "clicked", G_CALLBACK(on_logout_clicked), NULL);
+
+    GtkWidget *vol_lbl = gtk_label_new("Use 'Mark Attendance' to check-in participants."); gtk_box_pack_start(GTK_BOX(vol_view), vol_lbl, TRUE, TRUE, 0);
+
+    // Add to main stack
     gtk_stack_add_named(GTK_STACK(main_stack), login_view, "login");
     gtk_stack_add_named(GTK_STACK(main_stack), org_view, "org");
     gtk_stack_add_named(GTK_STACK(main_stack), part_view, "part");
