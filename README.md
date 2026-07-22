@@ -16,18 +16,11 @@
 
 ## 👥 Group Project Team Members & Product Functions
 
-| Member | Student ID | Specific Product Functions & Contribution Area | Contribution Ratio |
-|---|---|---|---|
-| **Pratik Barua** | `252-35-226` | • **Add/Update/Delete Events**: Create detailed event profiles including title, description, date, time, and venue.<br>• **Participant Registration**: Sign up for events with immediate confirmation.<br>• **Attendance Management**: Track and update participant attendance status.<br>• **Scheduling & Conflict Detection**: Monitor venue and time slots to identify and prevent double-booking. | **80%** |
-| **Umme Habiba Ayshi** | `252-35-298` | • **Venue Allocation**: Assign events to specific locations and set capacity limits.<br>• **System Testing & Documentation Validation**. | **15%** |
-| **Moshiur Rahman** | `252-35-184` | • **Report Generation**: Produce summary reports detailing registration numbers, attendance rates, and event status.<br>• **Data Backup & Restore Subsystem**. | **5%** |
-
-```mermaid
-pie title Team Contribution Breakdown
-    "Pratik Barua (252-35-226)" : 80
-    "Umme Habiba Ayshi (252-35-298)" : 15
-    "Moshiur Rahman (252-35-184)" : 5
-```
+| Member | Student ID | Specific Product Functions & Contribution Area |
+|---|---|---|
+| **Pratik Barua** | `252-35-226` | • **Add/Update/Delete Events**: Create detailed event profiles including title, description, date, time, and venue.<br>• **Participant Registration**: Sign up for events with immediate confirmation.<br>• **Attendance Management**: Track and update participant attendance status.<br>• **Scheduling & Conflict Detection**: Monitor venue and time slots to identify and prevent double-booking. |
+| **Umme Habiba Ayshi** | `252-35-298` | • **Venue Allocation**: Assign events to specific locations and set capacity limits.<br>• **System Testing & Documentation Validation**. |
+| **Moshiur Rahman** | `252-35-184` | • **Report Generation**: Produce summary reports detailing registration numbers, attendance rates, and event status.<br>• **Data Backup & Restore Subsystem**. |
 
 ---
 
