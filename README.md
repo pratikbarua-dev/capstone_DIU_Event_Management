@@ -14,13 +14,13 @@
 
 ---
 
-## 👥 Group Project Team Members
+## 👥 Group Project Team Members & Product Functions
 
-| Member | Student ID | Contribution Area | Contribution Ratio |
+| Member | Student ID | Specific Product Functions & Contribution Area | Contribution Ratio |
 |---|---|---|---|
-| **Pratik Barua** | `252-35-226` | CLI System Core (`main.c`), Conflict Algorithm, Data Structures, Build Config, README | **80%** |
-| **Umme Habiba Ayshi** | `252-35-298` | System Testing, Functional Validation & Documentation | **15%** |
-| **Moshiur Rahman** | `252-35-184` | Backup & Recovery Module (`manageBackups`) | **5%** |
+| **Pratik Barua** | `252-35-226` | • **Add/Update/Delete Events**: Create detailed event profiles including title, description, date, time, and venue.<br>• **Participant Registration**: Sign up for events with immediate confirmation.<br>• **Attendance Management**: Track and update participant attendance status.<br>• **Scheduling & Conflict Detection**: Monitor venue and time slots to identify and prevent double-booking. | **80%** |
+| **Umme Habiba Ayshi** | `252-35-298` | • **Venue Allocation**: Assign events to specific locations and set capacity limits.<br>• **System Testing & Documentation Validation**. | **15%** |
+| **Moshiur Rahman** | `252-35-184` | • **Report Generation**: Produce summary reports detailing registration numbers, attendance rates, and event status.<br>• **Data Backup & Restore Subsystem**. | **5%** |
 
 ```mermaid
 pie title Team Contribution Breakdown
@@ -70,19 +70,18 @@ graph TD
 
 ---
 
-## 🌟 Key Features
+## 🌟 Key Features & Functional Responsibility
 
-| Module | Features & Capabilities | Functional Requirements |
-|---|---|---|
-| 🔐 **Authentication** | Role-based dashboard routing (Organizer, Participant, Volunteer) with password check obfuscation | FR1, FR2, NFR6 |
-| 📅 **Event Creation** | Add events with title, description, date, time, venue, category, and seating capacity | FR3 |
-| 🚨 **Conflict Prevention** | Automated verification preventing two events at the same date, time, and venue | FR8 |
-| 🎟️ **Registration System** | Real-time seat allocation, capacity validation, and confirmation generation | FR7, FR9, FR12 |
-| 🔍 **Search & Filter** | Multi-attribute search (title, date, description) and filter (category, venue) | FR10, FR14 |
-| 📋 **Attendance Check-In** | Volunteer & Organizer check-in module updating real-time attendance statistics | FR11 |
-| 📋 **Participant List View** | Dedicated participant lookup per event ID displaying presence status and feedback | FR19 |
-| 💬 **Participant Feedback** | Collect and tie participant review comments to specific event records | FR15 |
-| 💾 **Backup & Restore** | 1-click database duplication (`events_backup.csv`) and fail-safe recovery | FR16, FR17 |
+| Module | Features & Capabilities | Contributor | Functional Requirements |
+|---|---|---|---|
+| 🔐 **Authentication & Access** | Role-based dashboard routing (Organizer, Participant, Volunteer) with password check obfuscation | Pratik Barua | FR1, FR2, NFR6 |
+| 📅 **Add/Update/Delete Events** | Create detailed event profiles including title, description, date, time, and venue | Pratik Barua | FR3, FR4, FR5 |
+| 🎟️ **Participant Registration** | Allow users to sign up for specific events and receive immediate confirmation | Pratik Barua | FR7, FR12, FR18 |
+| 📋 **Attendance Management** | Track and update the attendance status of registered participants | Pratik Barua | FR11, FR19 |
+| 🚨 **Scheduling & Conflict Detection**| Monitor venue and time slots to identify and prevent double-booking | Pratik Barua | FR8 |
+| 📍 **Venue Allocation** | Assign events to specific locations and set seating capacity limits | Umme Habiba Ayshi | FR9, FR14 |
+| 📊 **Report Generation** | Produce summary reports detailing registration numbers, attendance rates, and event status | Moshiur Rahman | FR13 |
+| 💾 **Data Backup & Restore** | 1-click database duplication (`events_backup.csv`) and fail-safe recovery | Moshiur Rahman | FR16, FR17 |
 
 ---
 
