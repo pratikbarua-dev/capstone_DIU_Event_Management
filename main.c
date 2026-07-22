@@ -165,3 +165,39 @@ void deleteEvent() {
     printf("Event deleted.\n");
 }
 
+// FR13 & FR19: Reports and Participant Lists [cite: 30, 31]
+void generateReports() {
+    printf("\n--- Summary Report ---\n");
+    for (int i = 0; i < event_count; i++) {
+        printf("Event: %s | Cap: %d | Reg: %d | Attended: %d\n", events[i].title, events[i].capacity, events[i].registered, events[i].attended);
+        printf("  Participants: ");
+        int found = 0;
+        for (int j = 0; j < reg_count; j++) {
+            if (regs[j].event_id == events[i].id) {
+                printf("%s (%s), ", regs[j].participant_name, regs[j].is_present ? "Present" : "Absent");
+                found = 1;
+            }
+        }
+        if(!found) printf("None");
+        printf("\n");
+    }
+}
+
+// FR7 & FR9 & FR12: Register [cite: 29, 30]
+void registerParticipant() {
+    int id, idx; char name[MAX_STR];
+    printf("Enter Event ID: "); scanf("%d", &id); getchar();
+    if ((idx = findEventIndex(id)) == -1) { printf("Event not found.\n"); return; }
+    if (events[idx].registered >= events[idx].capacity) { printf("ERROR: Event is at full capacity.\n"); return; }
+    
+    printf("Enter Your Name: "); fgets(name, MAX_STR, stdin); strip_nl(name);
+    regs[reg_count].event_id = id;
+    strcpy(regs[reg_count].participant_name, name);
+    regs[reg_count].is_present = 0;
+    strcpy(regs[reg_count].feedback, "N/A");
+    reg_count++;
+    events[idx].registered++;
+    saveData();
+    printf("Registration Successful! Confirmation generated.\n");
+}
+
