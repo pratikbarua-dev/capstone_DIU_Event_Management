@@ -136,6 +136,60 @@ void on_login_org(GtkWidget *w, gpointer window) {
 void on_login_part(GtkWidget *w, gpointer data) { refresh_tree_view(list_store_part); gtk_stack_set_visible_child(GTK_STACK(main_stack), part_view); }
 void on_login_vol(GtkWidget *w, gpointer data) { gtk_stack_set_visible_child(GTK_STACK(main_stack), vol_view); }
 
+// Feature Actions
+void on_add_event_clicked(GtkWidget *w, gpointer window) {
+    GtkWidget *dialog = gtk_dialog_new_with_buttons("Add New Event", GTK_WINDOW(window), GTK_DIALOG_MODAL, "Cancel", GTK_RESPONSE_CANCEL, "Save Event", GTK_RESPONSE_OK, NULL);
+    GtkWidget *content = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+    GtkWidget *grid = gtk_grid_new(); gtk_grid_set_row_spacing(GTK_GRID(grid), 10); gtk_grid_set_column_spacing(GTK_GRID(grid), 10); gtk_container_set_border_width(GTK_CONTAINER(grid), 20);
+    
+    GtkWidget *e_title = gtk_entry_new(); GtkWidget *e_date = gtk_entry_new();
+    GtkWidget *e_time = gtk_entry_new(); GtkWidget *e_venue = gtk_entry_new();
+    GtkWidget *e_cat = gtk_entry_new(); GtkWidget *e_cap = gtk_entry_new();
+    
+    gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Title:"), 0, 0, 1, 1); gtk_grid_attach(GTK_GRID(grid), e_title, 1, 0, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Date (DD/MM/YY):"), 0, 1, 1, 1); gtk_grid_attach(GTK_GRID(grid), e_date, 1, 1, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Time (HH:MM):"), 0, 2, 1, 1); gtk_grid_attach(GTK_GRID(grid), e_time, 1, 2, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Venue:"), 0, 3, 1, 1); gtk_grid_attach(GTK_GRID(grid), e_venue, 1, 3, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Category:"), 0, 4, 1, 1); gtk_grid_attach(GTK_GRID(grid), e_cat, 1, 4, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Capacity:"), 0, 5, 1, 1); gtk_grid_attach(GTK_GRID(grid), e_cap, 1, 5, 1, 1);
+    
+    gtk_container_add(GTK_CONTAINER(content), grid); gtk_widget_show_all(dialog);
+    if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_OK) {
+        Event e; e.id = (event_count > 0) ? events[event_count-1].id + 1 : 101;
+        strcpy(e.title, gtk_entry_get_text(GTK_ENTRY(e_title))); strcpy(e.date, gtk_entry_get_text(GTK_ENTRY(e_date)));
+        strcpy(e.time, gtk_entry_get_text(GTK_ENTRY(e_time))); strcpy(e.venue, gtk_entry_get_text(GTK_ENTRY(e_venue)));
+        strcpy(e.category, gtk_entry_get_text(GTK_ENTRY(e_cat))); e.capacity = atoi(gtk_entry_get_text(GTK_ENTRY(e_cap)));
+        e.registered = 0; e.attended = 0; events[event_count++] = e; saveData();
+        show_message(GTK_WINDOW(window), "Event Added Successfully!"); refresh_tree_view(list_store_org); refresh_reports();
+    }
+    gtk_widget_destroy(dialog);
+}
+
+void on_register_clicked(GtkWidget *w, gpointer window) {
+    GtkWidget *dialog = gtk_dialog_new_with_buttons("Register", GTK_WINDOW(window), GTK_DIALOG_MODAL, "Cancel", GTK_RESPONSE_CANCEL, "Register", GTK_RESPONSE_OK, NULL);
+    GtkWidget *content = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+    GtkWidget *grid = gtk_grid_new(); gtk_grid_set_row_spacing(GTK_GRID(grid), 10); gtk_grid_set_column_spacing(GTK_GRID(grid), 10); gtk_container_set_border_width(GTK_CONTAINER(grid), 20);
+    
+    GtkWidget *e_id = gtk_entry_new(); GtkWidget *e_name = gtk_entry_new();
+    gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Event ID:"), 0, 0, 1, 1); gtk_grid_attach(GTK_GRID(grid), e_id, 1, 0, 1, 1);
+    gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Your Name:"), 0, 1, 1, 1); gtk_grid_attach(GTK_GRID(grid), e_name, 1, 1, 1, 1);
+    
+    gtk_container_add(GTK_CONTAINER(content), grid); gtk_widget_show_all(dialog);
+    if (gtk_dialog_run(GTK_DIALOG(dialog)) == GTK_RESPONSE_OK) {
+        int id = atoi(gtk_entry_get_text(GTK_ENTRY(e_id))); const char *name = gtk_entry_get_text(GTK_ENTRY(e_name));
+        int idx = -1; for(int i=0; i<event_count; i++) if(events[i].id == id) idx = i;
+        if (idx == -1) show_message(GTK_WINDOW(window), "Event not found!");
+        else if (events[idx].registered >= events[idx].capacity) show_message(GTK_WINDOW(window), "Event is full!");
+        else {
+            regs[reg_count].event_id = id; strcpy(regs[reg_count].participant_name, name);
+            regs[reg_count].is_present = 0; strcpy(regs[reg_count].feedback, "N/A");
+            reg_count++; events[idx].registered++; saveData();
+            show_message(GTK_WINDOW(window), "Registration Successful!"); refresh_tree_view(list_store_part);
+        }
+    }
+    gtk_widget_destroy(dialog);
+}
+
 // UI Builders
 GtkWidget* create_tree_view(GtkListStore **store_ptr) {
     *store_ptr = gtk_list_store_new(6, G_TYPE_INT, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
@@ -227,6 +281,20 @@ static void activate(GtkApplication* app, gpointer user_data) {
     gtk_stack_add_titled(GTK_STACK(org_stack), org_reports_scroll, "reports", "📊 View Reports");
     
     // --- 3. Participant Dashboard ---
+    part_view = gtk_box_new(GTK_ORIENTATION_VERTICAL, 15); gtk_container_set_border_width(GTK_CONTAINER(part_view), 20);
+    GtkWidget *part_top = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 10); gtk_box_pack_start(GTK_BOX(part_view), part_top, FALSE, FALSE, 0);
+    
+    GtkWidget *btn_part_reg = gtk_button_new_with_label("Register for Event"); sc = gtk_widget_get_style_context(btn_part_reg); gtk_style_context_add_class(sc, "primary");
+    GtkWidget *btn_part_logout = gtk_button_new_with_label("Logout");
+    gtk_box_pack_start(GTK_BOX(part_top), btn_part_reg, FALSE, FALSE, 0);
+    gtk_box_pack_end(GTK_BOX(part_top), btn_part_logout, FALSE, FALSE, 0);
+    
+    g_signal_connect(btn_part_reg, "clicked", G_CALLBACK(on_register_clicked), window);
+    g_signal_connect(btn_part_logout, "clicked", G_CALLBACK(on_logout_clicked), NULL);
+    
+    GtkWidget *part_scroll = gtk_scrolled_window_new(NULL, NULL); tree_view_part = create_tree_view(&list_store_part);
+    gtk_container_add(GTK_CONTAINER(part_scroll), tree_view_part); gtk_box_pack_start(GTK_BOX(part_view), part_scroll, TRUE, TRUE, 0);
+
     gtk_stack_add_named(GTK_STACK(main_stack), login_view, "login");
     gtk_stack_add_named(GTK_STACK(main_stack), org_view, "org");
     gtk_stack_add_named(GTK_STACK(main_stack), part_view, "part");
