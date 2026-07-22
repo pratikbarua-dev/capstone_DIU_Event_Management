@@ -14,13 +14,6 @@
 
 ---
 
-> [!IMPORTANT]
-> **OFFICIAL CAPSTONE SCOPE NOTICE**:
-> - **Core Capstone Deliverable**: The Command Line Interface (CLI) system implemented in **[`main.c`](file:///home/pratiik/Documents/capstone/main.c)** is the **official capstone project** for academic submission and evaluation.
-> - **Experimental GTK GUI (`gui.c`)**: The GTK+ 3 desktop application (`gui.c`) was built as an **experimental test module** to explore GUI prototyping. It is **NOT part of the official Capstone project evaluation**.
-
----
-
 ## 📌 Executive Summary
 
 The **DIU Event Management System** is a lightweight, high-performance event planning, slot management, and registration engine built natively in C. Designed specifically for university department operations, it enforces role-based security, handles venue schedule conflicts, tracks real-time capacity, records participant check-ins, and generates analytical summaries.
@@ -60,7 +53,7 @@ graph TD
 
 | Module | Features & Capabilities | Functional Requirements |
 |---|---|---|
-| 🔐 **Authentication** | Role-based dashboard routing (Organizer, Participant, Volunteer) with pass-check obfuscation | FR1, FR2, NFR6 |
+| 🔐 **Authentication** | Role-based dashboard routing (Organizer, Participant, Volunteer) with password check obfuscation | FR1, FR2, NFR6 |
 | 📅 **Event Creation** | Add events with title, date, time, venue, category, and total seating capacity | FR3 |
 | 🚨 **Conflict Prevention** | Automated verification preventing two events at the same date, time, and venue | FR8 |
 | 🎟️ **Registration System** | Real-time seat allocation, capacity validation, and confirmation generation | FR7, FR9, FR12 |
@@ -111,14 +104,14 @@ The development responsibility for this Capstone Project was split among the tea
 ```mermaid
 pie title Team Contribution Breakdown
     "Pratik Barua (Core Engine & Lead Architect)" : 80
-    "Ayshi (GTK GUI Test Prototype)" : 15
+    "Ayshi (Testing & Documentation)" : 15
     "Mosihiur Rahman (Backup & Recovery Subsystem)" : 5
 ```
 
 | Member | Contribution Area | Contribution Ratio |
 |---|---|---|
 | **Pratik Barua** | CLI System Core (`main.c`), Conflict Algorithm, Data Structures, Build Config, README | **80%** |
-| **Ayshi** | Experimental GTK GUI Layout (`gui.c`) *(Test Module)* | **15%** |
+| **Ayshi** | System Testing, Functional Validation & Documentation | **15%** |
 | **Mosihiur Rahman** | Backup & Recovery Module (`manageBackups`) | **5%** |
 
 ---
@@ -131,24 +124,16 @@ pie title Team Contribution Breakdown
 
 ### Compilation & Execution
 
-#### 1. Official Capstone CLI (`main.c`)
-To build and run the official Capstone project:
+To build and run the project:
 ```bash
-# Compile CLI Engine
+# Compile with Makefile
+make
+
+# Or compile manually with GCC
 gcc -Wall main.c -o main
 
 # Execute CLI System
 ./main
-```
-
-#### 2. Experimental GTK GUI Test (`gui.c`) *(Optional / Test Only)*
-If GTK3 libraries are installed on your system:
-```bash
-# Compile GTK GUI Prototype (Test Only)
-gcc -Wall gui.c -o event_gui `pkg-config --cflags --libs gtk+-3.0`
-
-# Run GTK GUI Prototype
-./event_gui
 ```
 
 ---
@@ -159,9 +144,8 @@ gcc -Wall gui.c -o event_gui `pkg-config --cflags --libs gtk+-3.0`
 capstone_DIU_Event_Management/
 ├── README.md               # System Documentation & Architecture Overview
 ├── .gitignore              # Git Ignore Rules for Compiled Executables
-├── Makefile                # Build Script for CLI & Experimental GUI
-├── main.c                  # OFFICIAL CAPSTONE CORE: C CLI Engine
-├── gui.c                   # EXPERIMENTAL / TEST ONLY: GTK+ 3 GUI Prototype
+├── Makefile                # Build Script for C CLI Engine
+├── main.c                  # CAPSTONE CORE: C Event Management Engine
 ├── events.csv              # Primary Events Storage File
 ├── registrations.csv       # Primary Registrations Storage File
 └── assets/
