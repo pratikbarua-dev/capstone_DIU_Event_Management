@@ -201,3 +201,23 @@ void registerParticipant() {
     printf("Registration Successful! Confirmation generated.\n");
 }
 
+// FR18: Cancel Reg [cite: 31]
+void cancelRegistration() {
+    int id; char name[MAX_STR];
+    printf("Enter Event ID: "); scanf("%d", &id); getchar();
+    printf("Enter Your Name: "); fgets(name, MAX_STR, stdin); strip_nl(name);
+    
+    for (int i = 0; i < reg_count; i++) {
+        if (regs[i].event_id == id && strcmp(regs[i].participant_name, name) == 0) {
+            for (int j = i; j < reg_count - 1; j++) regs[j] = regs[j+1];
+            reg_count--;
+            int idx = findEventIndex(id);
+            if(idx != -1) events[idx].registered--;
+            saveData();
+            printf("Registration cancelled successfully.\n");
+            return;
+        }
+    }
+    printf("Registration record not found.\n");
+}
+
