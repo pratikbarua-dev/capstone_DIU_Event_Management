@@ -221,3 +221,45 @@ void cancelRegistration() {
     printf("Registration record not found.\n");
 }
 
+// FR15: Leave Feedback [cite: 30]
+void leaveFeedback() {
+    int id; char name[MAX_STR];
+    printf("Enter Event ID: "); scanf("%d", &id); getchar();
+    printf("Enter Your Name: "); fgets(name, MAX_STR, stdin); strip_nl(name);
+    
+    for (int i = 0; i < reg_count; i++) {
+        if (regs[i].event_id == id && strcmp(regs[i].participant_name, name) == 0) {
+            printf("Enter your feedback: ");
+            fgets(regs[i].feedback, MAX_STR, stdin); strip_nl(regs[i].feedback);
+            saveData();
+            printf("Feedback saved. Thank you!\n");
+            return;
+        }
+    }
+    printf("Registration record not found.\n");
+}
+
+// FR11: Mark Attendance [cite: 30]
+void markAttendance() {
+    int id; char name[MAX_STR];
+    printf("Enter Event ID: "); scanf("%d", &id); getchar();
+    printf("Enter Participant Name: "); fgets(name, MAX_STR, stdin); strip_nl(name);
+    
+    for (int i = 0; i < reg_count; i++) {
+        if (regs[i].event_id == id && strcmp(regs[i].participant_name, name) == 0) {
+            if (!regs[i].is_present) {
+                regs[i].is_present = 1;
+                int idx = findEventIndex(id);
+                if(idx != -1) events[idx].attended++;
+                saveData();
+                printf("Participant marked as PRESENT.\n");
+            } else {
+                printf("Participant already marked present.\n");
+            }
+            return;
+        }
+    }
+    printf("Participant not found.\n");
+}
+
+
