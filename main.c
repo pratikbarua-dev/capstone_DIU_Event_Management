@@ -94,8 +94,10 @@ void manageBackups(int restore) {
         char ch;
         if (src1 && dst1) while ((ch = fgetc(src1)) != EOF) fputc(ch, dst1);
         if (src2 && dst2) while ((ch = fgetc(src2)) != EOF) fputc(ch, dst2);
-        if(src1) fclose(src1); if(dst1) fclose(dst1);
-        if(src2) fclose(src2); if(dst2) fclose(dst2);
+        if(src1) fclose(src1); 
+        if(dst1) fclose(dst1);
+        if(src2) fclose(src2); 
+        if(dst2) fclose(dst2);
         printf("Data backup created successfully.\n");
     }
 }
@@ -156,22 +158,54 @@ void addEvent() {
     printf("Event added successfully! (ID: %d)\n", e.id);
 }
 
-// FR4: Update Event [cite: 29]
+// FR4: Update Event
 void updateEvent() {
     int id, idx;
     printf("Enter Event ID to update: "); scanf("%d", &id); getchar();
     if ((idx = findEventIndex(id)) == -1) { printf("Event not found.\n"); return; }
     
-    printf("New Title (or press enter to skip): "); char buffer[MAX_STR]; fgets(buffer, MAX_STR, stdin); strip_nl(buffer);
+    char buffer[MAX_STR];
+    printf("New Title (or press enter to skip): "); fgets(buffer, MAX_STR, stdin); strip_nl(buffer);
     if(strlen(buffer) > 0) strcpy(events[idx].title, buffer);
     
-    printf("New Time (or press enter to skip): "); fgets(buffer, MAX_STR, stdin); strip_nl(buffer);
-    if(strlen(buffer) > 0) {
-        if(checkConflict(events[idx].date, buffer, events[idx].venue, id)) { printf("Conflict! Time not updated.\n"); } 
-        else { strcpy(events[idx].time, buffer); }
+    char new_date[MAX_STR], new_time[MAX_STR], new_venue[MAX_STR];
+    strcpy(new_date, events[idx].date);
+    strcpy(new_time, events[idx].time);
+    strcpy(new_venue, events[idx].venue);
+
+    printf("New Date (DD/MM/YY) (or press enter to skip): "); fgets(buffer, MAX_STR, stdin); strip_nl(buffer);
+    if(strlen(buffer) > 0) strcpy(new_date, buffer);
+
+    printf("New Time (HH:MM) (or press enter to skip): "); fgets(buffer, MAX_STR, stdin); strip_nl(buffer);
+    if(strlen(buffer) > 0) strcpy(new_time, buffer);
+
+    printf("New Venue (or press enter to skip): "); fgets(buffer, MAX_STR, stdin); strip_nl(buffer);
+    if(strlen(buffer) > 0) strcpy(new_venue, buffer);
+
+    if(checkConflict(new_date, new_time, new_venue, id)) {
+        printf("ERROR: Venue/Time conflict detected! Schedule details reverted.\n");
+    } else {
+        strcpy(events[idx].date, new_date);
+        strcpy(events[idx].time, new_time);
+        strcpy(events[idx].venue, new_venue);
     }
+
+    printf("New Category (or press enter to skip): "); fgets(buffer, MAX_STR, stdin); strip_nl(buffer);
+    if(strlen(buffer) > 0) strcpy(events[idx].category, buffer);
+
+    printf("New Capacity (or press enter to skip): "); fgets(buffer, MAX_STR, stdin); strip_nl(buffer);
+    if(strlen(buffer) > 0) {
+        int cap = atoi(buffer);
+        if (cap > 0) {
+            if (cap < events[idx].registered) {
+                printf("WARNING: New capacity (%d) is lower than current registrations (%d)!\n", cap, events[idx].registered);
+            }
+            events[idx].capacity = cap;
+        }
+    }
+
     saveData();
-    printf("Event updated.\n");
+    printf("Event updated successfully.\n");
 }
 
 // FR5: Delete Event [cite: 29]
