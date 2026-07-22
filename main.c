@@ -34,3 +34,48 @@ int event_count = 0;
 Registration regs[MAX_REGS];
 int reg_count = 0;
 
+// --- File Handling Functions ---
+void loadData() {
+    FILE *fe = fopen(EVENT_FILE, "r");
+    if (fe) {
+        char line[512];
+        while (fgets(line, sizeof(line), fe)) {
+            sscanf(line, "%d,%[^,],%[^,],%[^,],%[^,],%[^,],%d,%d,%d", 
+                &events[event_count].id, events[event_count].title, events[event_count].date, 
+                events[event_count].time, events[event_count].venue, events[event_count].category, 
+                &events[event_count].capacity, &events[event_count].registered, &events[event_count].attended);
+            event_count++;
+        }
+        fclose(fe);
+    }
+    
+    FILE *fr = fopen(REG_FILE, "r");
+    if (fr) {
+        char line[512];
+        while (fgets(line, sizeof(line), fr)) {
+            sscanf(line, "%d,%[^,],%d,%[^\n]", 
+                &regs[reg_count].event_id, regs[reg_count].participant_name, 
+                &regs[reg_count].is_present, regs[reg_count].feedback);
+            reg_count++;
+        }
+        fclose(fr);
+    }
+}
+
+void saveData() {
+    FILE *fe = fopen(EVENT_FILE, "w");
+    for (int i = 0; i < event_count; i++) {
+        fprintf(fe, "%d,%s,%s,%s,%s,%s,%d,%d,%d\n", events[i].id, events[i].title, events[i].date, 
+                events[i].time, events[i].venue, events[i].category, events[i].capacity, 
+                events[i].registered, events[i].attended);
+    }
+    if (fe) fclose(fe);
+
+    FILE *fr = fopen(REG_FILE, "w");
+    for (int i = 0; i < reg_count; i++) {
+        fprintf(fr, "%d,%s,%d,%s\n", regs[i].event_id, regs[i].participant_name, 
+                regs[i].is_present, regs[i].feedback);
+    }
+    if (fr) fclose(fr);
+}
+
