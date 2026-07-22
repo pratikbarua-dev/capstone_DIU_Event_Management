@@ -45,6 +45,29 @@ The **DIU Event Management System** is a lightweight, high-performance event pla
 
 </div>
 
+```mermaid
+graph TD
+    A[User Roles] -->|Organizer| B(CLI Core Engine - main.c)
+    A -->|Participant| B
+    A -->|Volunteer| B
+
+    subgraph Core Engine Modules
+        B --> C[Authentication & Access Control]
+        B --> D[Venue & Time Conflict Detector]
+        B --> E[Capacity & Slot Tracking Engine]
+        B --> F[Report Generator & Analytics]
+        B --> G[Backup & Recovery Subsystem]
+    end
+
+    subgraph Data Layer
+        C <--> H[(events.csv)]
+        D <--> H
+        E <--> H
+        F <--> I[(registrations.csv)]
+        G <--> J[(events_backup.csv / regs_backup.csv)]
+    end
+```
+
 ---
 
 ## 🌟 Key Features
