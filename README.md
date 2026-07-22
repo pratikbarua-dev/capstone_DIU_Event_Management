@@ -14,6 +14,23 @@
 
 ---
 
+## 👥 Group Project Team Members
+
+| Member | Student ID | Contribution Area | Contribution Ratio |
+|---|---|---|---|
+| **Pratik Barua** | `252-35-226` | CLI System Core (`main.c`), Conflict Algorithm, Data Structures, Build Config, README | **80%** |
+| **Umme Habiba Ayshi** | `252-35-298` | System Testing, Functional Validation & Documentation | **15%** |
+| **Moshiur Rahman** | `252-35-184` | Backup & Recovery Module (`manageBackups`) | **5%** |
+
+```mermaid
+pie title Team Contribution Breakdown
+    "Pratik Barua (252-35-226)" : 80
+    "Umme Habiba Ayshi (252-35-298)" : 15
+    "Moshiur Rahman (252-35-184)" : 5
+```
+
+---
+
 ## 📌 Executive Summary
 
 The **DIU Event Management System** is a lightweight, high-performance event planning, slot management, and registration engine built natively in C. Designed specifically for university department operations, it enforces role-based security, handles venue schedule conflicts, tracks real-time capacity, records participant check-ins, and generates analytical summaries.
@@ -21,8 +38,6 @@ The **DIU Event Management System** is a lightweight, high-performance event pla
 ---
 
 ## 🏗️ System Architecture
-
-![System Architecture Diagram](assets/architecture.png)
 
 ```mermaid
 graph TD
@@ -98,25 +113,6 @@ sequenceDiagram
 
 ---
 
-## 👥 Group Project Contribution Ratio
-
-The development responsibility for this Capstone Project was split among the team members as follows:
-
-```mermaid
-pie title Team Contribution Breakdown
-    "Pratik Barua (Core Engine & Lead Architect)" : 80
-    "Ayshi (Testing & Documentation)" : 15
-    "Mosihiur Rahman (Backup & Recovery Subsystem)" : 5
-```
-
-| Member | Contribution Area | Contribution Ratio |
-|---|---|---|
-| **Pratik Barua** | CLI System Core (`main.c`), Conflict Algorithm, Data Structures, Build Config, README | **80%** |
-| **Ayshi** | System Testing, Functional Validation & Documentation | **15%** |
-| **Mosihiur Rahman** | Backup & Recovery Module (`manageBackups`) | **5%** |
-
----
-
 ## 🚀 Getting Started
 
 ### Prerequisites
@@ -150,9 +146,7 @@ capstone_DIU_Event_Management/
 ├── events.csv              # Primary Events Storage File
 ├── registrations.csv       # Primary Registrations Storage File
 └── assets/
-    ├── logo.png            # Minimalist Line-Art Emblem Logo
-    ├── banner.png          # Wide Minimalist Header Banner Image
-    └── architecture.png    # System Architecture Block Diagram
+    └── logo.png            # Minimalist Line-Art Emblem Logo
 ```
 
 ---
