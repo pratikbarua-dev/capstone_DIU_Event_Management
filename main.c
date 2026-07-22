@@ -79,3 +79,21 @@ void saveData() {
     if (fr) fclose(fr);
 }
 
+// --- Utility Functions ---
+void strip_nl(char *str) { str[strcspn(str, "\n")] = 0; }
+int findEventIndex(int id) {
+    for (int i = 0; i < event_count; i++) if (events[i].id == id) return i;
+    return -1;
+}
+
+// FR8: Conflict Detection [cite: 29]
+int checkConflict(char* date, char* time, char* venue, int ignore_id) {
+    for (int i = 0; i < event_count; i++) {
+        if (events[i].id != ignore_id && strcmp(events[i].date, date) == 0 && 
+            strcmp(events[i].time, time) == 0 && strcmp(events[i].venue, venue) == 0) {
+            return 1; 
+        }
+    }
+    return 0;
+}
+
