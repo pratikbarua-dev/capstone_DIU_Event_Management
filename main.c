@@ -115,3 +115,23 @@ void displayEvents(int filter_mode, char* keyword) {
     }
 }
 
+// FR3: Add Event [cite: 29]
+void addEvent() {
+    Event e;
+    e.id = (event_count > 0) ? events[event_count-1].id + 1 : 101;
+    printf("Title: "); fgets(e.title, MAX_STR, stdin); strip_nl(e.title);
+    printf("Date (DD/MM/YY): "); fgets(e.date, MAX_STR, stdin); strip_nl(e.date);
+    printf("Time (HH:MM): "); fgets(e.time, MAX_STR, stdin); strip_nl(e.time);
+    printf("Venue: "); fgets(e.venue, MAX_STR, stdin); strip_nl(e.venue);
+    printf("Category: "); fgets(e.category, MAX_STR, stdin); strip_nl(e.category);
+    printf("Capacity: "); scanf("%d", &e.capacity); getchar();
+    
+    if (checkConflict(e.date, e.time, e.venue, -1)) {
+        printf("ERROR: Venue conflict detected!\n"); return;
+    }
+    e.registered = 0; e.attended = 0;
+    events[event_count++] = e;
+    saveData();
+    printf("Event added successfully! (ID: %d)\n", e.id);
+}
+
