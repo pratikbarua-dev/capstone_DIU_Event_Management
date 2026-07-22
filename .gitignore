@@ -1,0 +1,11 @@
+# Executables & Binaries
+main
+event_gui
+a.out
+*.o
+.orig_backup
+
+# Backup & temporary files
+events_backup.csv
+regs_backup.csv
+*.tmp
