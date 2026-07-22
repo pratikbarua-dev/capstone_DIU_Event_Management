@@ -97,3 +97,21 @@ int checkConflict(char* date, char* time, char* venue, int ignore_id) {
     return 0;
 }
 
+// --- Core Functionalities ---
+// FR6: View Events [cite: 29]
+void displayEvents(int filter_mode, char* keyword) {
+    printf("\n%-5s | %-15s | %-10s | %-10s | %-15s | %-10s | %s\n", "ID", "Title", "Date", "Time", "Venue", "Category", "Slots");
+    printf("--------------------------------------------------------------------------------------\n");
+    for (int i = 0; i < event_count; i++) {
+        int match = 1;
+        if (filter_mode == 1) match = (strstr(events[i].title, keyword) || strstr(events[i].date, keyword)); // FR10: Search [cite: 30]
+        if (filter_mode == 2) match = (strcmp(events[i].category, keyword) == 0 || strcmp(events[i].venue, keyword) == 0); // FR14: Filter [cite: 30]
+        
+        if (match) {
+            printf("%-5d | %-15s | %-10s | %-10s | %-15s | %-10s | %d/%d\n", 
+                   events[i].id, events[i].title, events[i].date, events[i].time, 
+                   events[i].venue, events[i].category, events[i].capacity - events[i].registered, events[i].capacity);
+        }
+    }
+}
+
