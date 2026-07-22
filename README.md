@@ -39,28 +39,11 @@ The **DIU Event Management System** is a lightweight, high-performance event pla
 
 ## 🏗️ System Architecture
 
-```mermaid
-graph TD
-    A[User Roles] -->|Organizer| B(CLI Core Engine - main.c)
-    A -->|Participant| B
-    A -->|Volunteer| B
+<div align="center">
 
-    subgraph Core Engine Modules
-        B --> C[Authentication & Access Control]
-        B --> D[Venue & Time Conflict Detector]
-        B --> E[Capacity & Slot Tracking Engine]
-        B --> F[Report Generator & Analytics]
-        B --> G[Backup & Recovery Subsystem]
-    end
+<img src="assets/architecture.png" width="650" alt="Minimalist System Architecture Diagram" />
 
-    subgraph Data Layer
-        C <--> H[(events.csv)]
-        D <--> H
-        E <--> H
-        F <--> I[(registrations.csv)]
-        G <--> J[(events_backup.csv / regs_backup.csv)]
-    end
-```
+</div>
 
 ---
 
@@ -146,7 +129,8 @@ capstone_DIU_Event_Management/
 ├── events.csv              # Primary Events Storage File
 ├── registrations.csv       # Primary Registrations Storage File
 └── assets/
-    └── logo.png            # Minimalist Line-Art Emblem Logo
+    ├── logo.png            # Minimalist Line-Art Emblem Logo
+    └── architecture.png    # Minimalist Black & White Architecture Diagram
 ```
 
 ---
