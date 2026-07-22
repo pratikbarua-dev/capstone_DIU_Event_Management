@@ -28,6 +28,96 @@ GtkWidget *reports_text_view;
 GtkWidget *tree_view_org, *tree_view_part;
 
 void loadData() {
+    event_count = 0; reg_count = 0;
+    FILE *fe = fopen(EVENT_FILE, "r");
+    if (fe) {
+        char line[512];
+        while (fgets(line, sizeof(line), fe)) {
+            sscanf(line, "%d,%[^,],%[^,],%[^,],%[^,],%[^,],%d,%d,%d", 
+                &events[event_count].id, events[event_count].title, events[event_count].date, 
+                events[event_count].time, events[event_count].venue, events[event_count].category, 
+                &events[event_count].capacity, &events[event_count].registered, &events[event_count].attended);
+            event_count++;
+        }
+        fclose(fe);
+    }
+    FILE *fr = fopen(REG_FILE, "r");
+    if (fr) {
+        char line[512];
+        while (fgets(line, sizeof(line), fr)) {
+            sscanf(line, "%d,%[^,],%d,%[^\n]", 
+                &regs[reg_count].event_id, regs[reg_count].participant_name, 
+                &regs[reg_count].is_present, regs[reg_count].feedback);
+            reg_count++;
+        }
+        fclose(fr);
+    }
+}
+
+void saveData() {
+    FILE *fe = fopen(EVENT_FILE, "w");
+    if(fe) {
+        for (int i = 0; i < event_count; i++)
+            fprintf(fe, "%d,%s,%s,%s,%s,%s,%d,%d,%d\n", events[i].id, events[i].title, events[i].date, events[i].time, events[i].venue, events[i].category, events[i].capacity, events[i].registered, events[i].attended);
+        fclose(fe);
+    }
+    FILE *fr = fopen(REG_FILE, "w");
+    if(fr) {
+        for (int i = 0; i < reg_count; i++)
+            fprintf(fr, "%d,%s,%d,%s\n", regs[i].event_id, regs[i].participant_name, regs[i].is_present, regs[i].feedback);
+        fclose(fr);
+    }
+}
+
+void refresh_tree_view(GtkListStore *store) {
+    gtk_list_store_clear(store);
+    GtkTreeIter iter;
+    for(int i=0; i<event_count; i++) {
+        char slots[32]; sprintf(slots, "%d/%d", events[i].capacity - events[i].registered, events[i].capacity);
+        gtk_list_store_append(store, &iter);
+        gtk_list_store_set(store, &iter, 0, events[i].id, 1, events[i].title, 2, events[i].date, 3, events[i].time, 4, events[i].venue, 5, slots, -1);
+    }
+}
+
+void refresh_reports() {
+    char output[10000] = "";
+    for (int i = 0; i < event_count; i++) {
+        char line[256];
+        sprintf(line, "📅 %s (ID: %d) | Cap: %d | Reg: %d | Attended: %d\n  Participants: ", events[i].title, events[i].id, events[i].capacity, events[i].registered, events[i].attended);
+        strcat(output, line);
+        int found = 0;
+        for (int j = 0; j < reg_count; j++) {
+            if (regs[j].event_id == events[i].id) {
+                char p[128]; sprintf(p, "%s (%s), ", regs[j].participant_name, regs[j].is_present ? "Present" : "Absent");
+                strcat(output, p); found = 1;
+            }
+        }
+        if(!found) strcat(output, "None");
+        strcat(output, "\n\n");
+    }
+    GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(reports_text_view));
+    gtk_text_buffer_set_text(buffer, output, -1);
+}
+
+void show_message(GtkWindow *parent, const char *message) {
+    GtkWidget *dialog = gtk_message_dialog_new(parent, GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_INFO, GTK_BUTTONS_OK, "%s", message);
+    gtk_dialog_run(GTK_DIALOG(dialog));
+    gtk_widget_destroy(dialog);
+}
+
+int prompt_input(GtkWindow *parent, const char *title, const char *label_text, char *output_str, gboolean is_password) {
+    GtkWidget *dialog = gtk_dialog_new_with_buttons(title, parent, GTK_DIALOG_MODAL, "Cancel", GTK_RESPONSE_CANCEL, "OK", GTK_RESPONSE_OK, NULL);
+    GtkWidget *content_area = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+    GtkWidget *entry = gtk_entry_new();
+    if(is_password) gtk_entry_set_visibility(GTK_ENTRY(entry), FALSE);
+    gtk_container_add(GTK_CONTAINER(content_area), gtk_label_new(label_text));
+    gtk_container_add(GTK_CONTAINER(content_area), entry);
+    gtk_widget_show_all(dialog);
+    int response = gtk_dialog_run(GTK_DIALOG(dialog));
+    if (response == GTK_RESPONSE_OK) strcpy(output_str, gtk_entry_get_text(GTK_ENTRY(entry)));
+    gtk_widget_destroy(dialog);
+    return response == GTK_RESPONSE_OK;
+}
 
 // Navigation Actions
 void on_logout_clicked(GtkWidget *w, gpointer data) { gtk_stack_set_visible_child(GTK_STACK(main_stack), login_view); }
@@ -45,6 +135,16 @@ void on_login_org(GtkWidget *w, gpointer window) {
 }
 void on_login_part(GtkWidget *w, gpointer data) { refresh_tree_view(list_store_part); gtk_stack_set_visible_child(GTK_STACK(main_stack), part_view); }
 void on_login_vol(GtkWidget *w, gpointer data) { gtk_stack_set_visible_child(GTK_STACK(main_stack), vol_view); }
+
+// UI Builders
+GtkWidget* create_tree_view(GtkListStore **store_ptr) {
+    *store_ptr = gtk_list_store_new(6, G_TYPE_INT, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
+    GtkWidget *tree = gtk_tree_view_new_with_model(GTK_TREE_MODEL(*store_ptr));
+    g_object_unref(*store_ptr);
+    const char *cols[] = {"ID", "Title", "Date", "Time", "Venue", "Slots"};
+    for(int i=0; i<6; i++) gtk_tree_view_append_column(GTK_TREE_VIEW(tree), gtk_tree_view_column_new_with_attributes(cols[i], gtk_cell_renderer_text_new(), "text", i, NULL));
+    return tree;
+}
 
 static void activate(GtkApplication* app, gpointer user_data) {
     loadData();
@@ -100,6 +200,33 @@ static void activate(GtkApplication* app, gpointer user_data) {
     g_signal_connect(btn_vol, "clicked", G_CALLBACK(on_login_vol), NULL);
 
     // --- 2. Organizer Dashboard ---
+    org_view = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 15); gtk_container_set_border_width(GTK_CONTAINER(org_view), 20);
+    GtkWidget *org_sidebar = gtk_box_new(GTK_ORIENTATION_VERTICAL, 10); gtk_widget_set_size_request(org_sidebar, 200, -1);
+    gtk_box_pack_start(GTK_BOX(org_view), org_sidebar, FALSE, FALSE, 0);
+    
+    GtkWidget *org_stack = gtk_stack_new(); gtk_box_pack_start(GTK_BOX(org_view), org_stack, TRUE, TRUE, 0);
+    GtkWidget *org_stack_switcher = gtk_stack_sidebar_new(); gtk_stack_sidebar_set_stack(GTK_STACK_SIDEBAR(org_stack_switcher), GTK_STACK(org_stack));
+    gtk_box_pack_start(GTK_BOX(org_sidebar), org_stack_switcher, TRUE, TRUE, 0);
+    
+    GtkWidget *btn_add_event = gtk_button_new_with_label("Add New Event"); sc = gtk_widget_get_style_context(btn_add_event); gtk_style_context_add_class(sc, "primary");
+    g_signal_connect(btn_add_event, "clicked", G_CALLBACK(on_add_event_clicked), window);
+    gtk_box_pack_start(GTK_BOX(org_sidebar), btn_add_event, FALSE, FALSE, 0);
+    
+    GtkWidget *btn_org_logout = gtk_button_new_with_label("Logout"); g_signal_connect(btn_org_logout, "clicked", G_CALLBACK(on_logout_clicked), NULL);
+    gtk_box_pack_start(GTK_BOX(org_sidebar), btn_org_logout, FALSE, FALSE, 0);
+    
+    // Manage Events Tab
+    GtkWidget *org_events_scroll = gtk_scrolled_window_new(NULL, NULL); tree_view_org = create_tree_view(&list_store_org);
+    gtk_container_add(GTK_CONTAINER(org_events_scroll), tree_view_org);
+    gtk_stack_add_titled(GTK_STACK(org_stack), org_events_scroll, "manage_events", "📅 Manage Events");
+    
+    // Reports Tab
+    GtkWidget *org_reports_scroll = gtk_scrolled_window_new(NULL, NULL);
+    reports_text_view = gtk_text_view_new(); gtk_text_view_set_editable(GTK_TEXT_VIEW(reports_text_view), FALSE);
+    gtk_container_add(GTK_CONTAINER(org_reports_scroll), reports_text_view);
+    gtk_stack_add_titled(GTK_STACK(org_stack), org_reports_scroll, "reports", "📊 View Reports");
+    
+    // --- 3. Participant Dashboard ---
     gtk_stack_add_named(GTK_STACK(main_stack), login_view, "login");
     gtk_stack_add_named(GTK_STACK(main_stack), org_view, "org");
     gtk_stack_add_named(GTK_STACK(main_stack), part_view, "part");
